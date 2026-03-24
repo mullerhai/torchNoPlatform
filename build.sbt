@@ -31,27 +31,49 @@ lazy val root = (project in file("."))
     name := "torchNoPlatform"
   )
 
+// 平台相关配置：当前项目只针对 macOS ARM64
+val javaCppVersion   = "1.5.13"
+val pytorchVersion   = s"2.10.0-$javaCppVersion"
+val openblasVersion  = s"0.3.31-$javaCppVersion"
+val javaCppPlatform  = "macosx-arm64"
+
 libraryDependencies ++= Seq(
-  // Source: https://mvnrepository.com/artifact/org.bytedeco/pytorch
-  "org.bytedeco" % "pytorch" % "2.10.0-1.5.13",
-//  "org.bytedeco" % "pytorch-platform" % "2.10.0-1.5.13",
-//  "org.bytedeco" % "pytorch-platform-gpu" % "2.10.0-1.5.13",
-//  //   Source: https://mvnrepository.com/artifact/org.bytedeco/cuda
-//  "org.bytedeco" % "cuda" % "13.1-9.19-1.5.13",
-//  //   Source: https://mvnrepository.com/artifact/org.bytedeco/cuda-platform
-//  "org.bytedeco" % "cuda-platform" % "13.1-9.19-1.5.13",
-//
-//  "org.bytedeco" % "cuda-platform-redist-cudnn" % "13.1-9.19-1.5.13",
-//  "org.bytedeco" % "cuda-platform-redist-cusolver" % "13.1-9.19-1.5.13",
-//  "org.bytedeco" % "cuda-platform-redist-nccl" % "13.1-9.19-1.5.13",
-  "junit" % "junit" % "4.13.2" // % Test
-  // 注释掉的 MKL 依赖
+  // Compile：macOS ARM64 瘦包 + 胶水层
+  "org.bytedeco" % "javacpp"  % javaCppVersion,
+  "org.bytedeco" % "openblas" % openblasVersion,
+  "org.bytedeco" % "pytorch"  % pytorchVersion,
+  ("org.bytedeco" % "javacpp"  % javaCppVersion  classifier javaCppPlatform)  %Provided, // % Test,
+  ("org.bytedeco" % "openblas" % openblasVersion classifier javaCppPlatform)  %Provided, //% Test,
+  ("org.bytedeco" % "pytorch"  % pytorchVersion  classifier javaCppPlatform)  %Provided, //% Test,
+
+  // Test：platform 聚合包，只用于测试你的动态加载逻辑
+//  "org.bytedeco" % "pytorch-platform"     % pytorchVersion % Test,
+//  "org.bytedeco" % "pytorch-platform-gpu" % pytorchVersion % Test,
+
+  "junit" % "junit" % "4.13.2" % Test
   // "org.bytedeco" % "mkl-platform-redist" % "2025.2-1.5.13-SNAPSHOT"
 )
+
+// 删掉之前对 org.bytedeco 的全局 exclude，避免把瘦包也排掉
 
 // Add custom merge strategy for sbt-assembly to handle module-info.class deduplication
 import sbtassembly.AssemblyPlugin.autoImport._
 assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "versions", "9", "module-info.class") => MergeStrategy.first
+  case PathList("META-INF", "native-image", _ @ _*) => MergeStrategy.discard
   case x => (assembly / assemblyMergeStrategy).value(x)
+}
+
+assemblyExcludedJars := {
+  val cp = (fullClasspath in assembly).value
+  cp filter { jar =>
+    jar.data.getName.startsWith("pytorch-platform") ||
+    jar.data.getName.startsWith("pytorch-platform-gpu") ||
+    jar.data.getName.endsWith("macosx-arm64") ||
+      jar.data.getName.endsWith("macosx-x86_64") ||
+      jar.data.getName.endsWith("linux-arm64")||
+      jar.data.getName.endsWith("linux-x86_64")||
+      jar.data.getName.endsWith("windows-arm64") ||
+      jar.data.getName.endsWith("windows-x86_64")
+  }
 }

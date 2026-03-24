@@ -53,6 +53,7 @@ object PyTorchDynamicLoad {
 
     // 3. 触发 torch 的 static initializer（此时所有 native 已在 JVM 中）
     //    用 Class.forName 而非 Loader.load()，避免 Loader 再次尝试 System.loadLibrary
+    Class.forName("org.bytedeco.openblas.global.openblas_nolapack")// 预加载 openblas_nolapack，满足 torch 的隐式依赖，否则必报
     Class.forName("org.bytedeco.pytorch.global.torch")
     println("✅ PyTorch 初始化成功")
 
