@@ -45,11 +45,9 @@ libraryDependencies ++= Seq(
   ("org.bytedeco" % "javacpp"  % javaCppVersion  classifier javaCppPlatform)  %Provided, // % Test,
   ("org.bytedeco" % "openblas" % openblasVersion classifier javaCppPlatform)  %Provided, //% Test,
   ("org.bytedeco" % "pytorch"  % pytorchVersion  classifier javaCppPlatform)  %Provided, //% Test,
-
   // Test：platform 聚合包，只用于测试你的动态加载逻辑
 //  "org.bytedeco" % "pytorch-platform"     % pytorchVersion % Test,
 //  "org.bytedeco" % "pytorch-platform-gpu" % pytorchVersion % Test,
-
   "junit" % "junit" % "4.13.2" % Test
   // "org.bytedeco" % "mkl-platform-redist" % "2025.2-1.5.13-SNAPSHOT"
 )

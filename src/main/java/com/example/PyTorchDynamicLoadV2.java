@@ -70,7 +70,8 @@ public class PyTorchDynamicLoadV2 {
             Class<?> torchClass = Class.forName("org.bytedeco.pytorch.global.torch", false, cl);
             System.out.println("ℹ️ 检测到 org.bytedeco.pytorch.global.torch 在 classpath 上，尝试使用 platform 依赖");
             try {
-                torchClass.getMethod("get_num_threads").invoke(null);
+                torch.ones(1).close();
+//                torchClass.getMethod("get_num_threads").invoke(null);
                 return true;
             } catch (NoClassDefFoundError | UnsatisfiedLinkError e) {
                 System.out.println("ℹ️ 通过 platform 依赖初始化失败，将回退到 libs 目录加载：" + e.getMessage());
