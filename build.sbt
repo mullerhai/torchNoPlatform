@@ -52,6 +52,7 @@ libraryDependencies ++= Seq(
   // "org.bytedeco" % "mkl-platform-redist" % "2025.2-1.5.13-SNAPSHOT"
 )
 
+mainClass := Some("com.example.PyTorchDynamicLoadV2")
 // 删掉之前对 org.bytedeco 的全局 exclude，避免把瘦包也排掉
 
 // Add custom merge strategy for sbt-assembly to handle module-info.class deduplication

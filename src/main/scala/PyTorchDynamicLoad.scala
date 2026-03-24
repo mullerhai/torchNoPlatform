@@ -17,8 +17,8 @@ import java.util.zip.ZipFile
  */
 object PyTorchDynamicLoad {
 
-  private val LIB_DIR = new File("./libs")
-
+//  private val LIB_DIR = new File("./libs")
+  private val LIB_DIR = new File("/Users/mullerzhang/IdeaProjects/torchNoPlatform/libs")
   // 明确的加载顺序：基础依赖库 → JNI 桥接库
   // 基础库按依赖从底向上，JNI 桥接库最后
   private val LOAD_ORDER = Seq(
@@ -44,6 +44,7 @@ object PyTorchDynamicLoad {
 
   def main(args: Array[String]): Unit = {
     // 1. 提取所有 .dylib 到临时目录
+    System.out.println("✅ 加载 PyTorch 原生库示例Scala3（V2）" + "\n" + LIB_DIR.getAbsolutePath)
     val nativeDir = extractNativeLibs()
     println(s"✅ 原生库已提取至：$nativeDir")
 

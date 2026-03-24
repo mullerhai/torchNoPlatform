@@ -18,7 +18,9 @@ import java.util.zip.ZipFile;
 
 public class PyTorchDynamicLoadV2 {
 
-    private static final File LIB_DIR = new File("./libs");
+    ///Users/mullerzhang/IdeaProjects/torchNoPlatform/libs/javacpp-1.5.13-macosx-arm64.jar
+    private static final File LIB_DIR = new File("/Users/mullerzhang/IdeaProjects/torchNoPlatform/libs");
+//    private static final File LIB_DIR = new File("./libs");
 
     private static final String[] LOAD_ORDER = new String[]{
             "libgcc_s.1.1.dylib",
@@ -41,6 +43,7 @@ public class PyTorchDynamicLoadV2 {
     };
 
     public static void main(String[] args) throws Exception {
+        System.out.println("✅ 加载 PyTorch 原生库示例Java（V2）"+"\n"+ LIB_DIR.getAbsolutePath());
         boolean ok = tryInitViaPlatform();
         if (!ok) {
             File nativeDir = extractNativeLibs();
@@ -68,6 +71,7 @@ public class PyTorchDynamicLoadV2 {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         try {
             Class<?> torchClass = Class.forName("org.bytedeco.pytorch.global.torch", false, cl);
+            Class.forName("org.bytedeco.openblas.global.openblas_nolapack", false, cl);
             System.out.println("ℹ️ 检测到 org.bytedeco.pytorch.global.torch 在 classpath 上，尝试使用 platform 依赖");
             try {
                 torch.ones(1).close();
